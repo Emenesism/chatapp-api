@@ -1,0 +1,45 @@
+# Build artifacts
+**/bin/
+**/obj/
+out/
+publish/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE/editor
+.vs/
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp
+*.log
+*.tmp
+*.temp
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Test results and coverage
+TestResults/
+*.trx
+coverage/
+coverage.*
+
+# Local config / secrets
+appsettings.Local.json
+appsettings.*.local.json
+*.env
+.env
+.env.*
+

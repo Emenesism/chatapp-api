@@ -9,14 +9,16 @@ public class LoginOrRegisterHandler
 {
     private readonly IUserRepository _users;
     private readonly IPasswordHasher _hasher;
+    private readonly IJwtProvider _jwt;
 
-    public LoginOrRegisterHandler(IUserRepository users, IPasswordHasher hasher)
+    public LoginOrRegisterHandler(IUserRepository users, IPasswordHasher hasher, IJwtProvider jwt)
     {
         _users = users;
         _hasher = hasher;
+        _jwt = jwt;
     }
 
-    public async Task<User> Handle(LoginOrRegisterCommand command)
+    public async Task<LoginOrRegisterResult> Handle(LoginOrRegisterCommand command)
     {
         var phone = PhoneValidator.NormalizePhone(command.Phone);
 
@@ -36,7 +38,8 @@ public class LoginOrRegisterHandler
                 throw new InvalidOperationException("Invalid credentials");
             }
         }
+        var token = _jwt.GenerateToken(user.Id, user.PhoneNumber);
 
-        return user;
+        return new LoginOrRegisterResult(user, token);
     }
 }

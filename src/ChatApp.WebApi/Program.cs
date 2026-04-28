@@ -13,6 +13,16 @@ Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 var conn = Environment.GetEnvironmentVariable("DB_CONNECTION");
+if (string.IsNullOrWhiteSpace(conn))
+{
+    throw new InvalidOperationException("DB_CONNECTION is missing. Set it in .env.");
+}
+
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException("Jwt:Key is missing. For .env use JWT__KEY.");
+}
 
 builder.Services.AddDbContext<ChatDBContext>(options =>
     options.UseNpgsql(
@@ -23,6 +33,7 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<LoginOrRegisterHandler>();
+builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 
 builder.Services.AddControllers();
 

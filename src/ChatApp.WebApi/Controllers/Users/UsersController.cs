@@ -17,12 +17,13 @@ public class UsersController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginOrRegisterCommand command)
     {
-        var user = await _handler.Handle(command);
+        var result = await _handler.Handle(command);
 
         return Ok(new
         {
-            user.Id,
-            user.Name
+            result.User.Id,
+            result.User.Name,
+            token = result.Token
         });
     }
 }

@@ -15,6 +15,7 @@ publish/
 .vs/
 .vscode/
 .idea/
+.codex
 
 # OS files
 .DS_Store
@@ -42,4 +43,3 @@ appsettings.*.local.json
 *.env
 .env
 .env.*
-

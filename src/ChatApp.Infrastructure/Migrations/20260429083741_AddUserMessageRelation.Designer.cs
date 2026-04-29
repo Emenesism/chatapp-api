@@ -3,6 +3,7 @@ using System;
 using ChatApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChatApp.Infrastructure.Migrations
 {
     [DbContext(typeof(ChatDBContext))]
-    partial class ChatDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260429083741_AddUserMessageRelation")]
+    partial class AddUserMessageRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,15 +31,15 @@ namespace ChatApp.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("ReceiverId")
-                        .HasColumnType("uuid");
 
                     b.Property<Guid>("SenderId")
                         .HasColumnType("uuid");
@@ -46,9 +49,7 @@ namespace ChatApp.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ReceiverId", "SenderId", "CreatedAt");
-
-                    b.HasIndex("SenderId", "ReceiverId", "CreatedAt");
+                    b.HasIndex("SenderId");
 
                     b.ToTable("Messages");
                 });
@@ -83,19 +84,11 @@ namespace ChatApp.Infrastructure.Migrations
 
             modelBuilder.Entity("ChatApp.Domain.Entities.Message", b =>
                 {
-                    b.HasOne("ChatApp.Domain.Entities.User", "Receiver")
-                        .WithMany()
-                        .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("ChatApp.Domain.Entities.User", "Sender")
                         .WithMany("Messages")
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Receiver");
 
                     b.Navigation("Sender");
                 });

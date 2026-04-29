@@ -13,6 +13,21 @@ public class ChatDBContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(typeof(ChatDBContext).Assembly);
+
+        builder.Entity<Message>()
+            .HasOne(m => m.Sender)
+            .WithMany(u => u.Messages)
+            .HasForeignKey(m => m.SenderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Message>()
+            .HasOne(m => m.Receiver)
+            .WithMany()
+            .HasForeignKey(m => m.ReceiverId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Message>().HasIndex(m => new { m.SenderId, m.ReceiverId, m.CreatedAt });
+        builder.Entity<Message>().HasIndex(m => new { m.ReceiverId, m.SenderId, m.CreatedAt });
     }
 
 }

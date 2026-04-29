@@ -25,4 +25,23 @@ public class MessageRepository : IMessageRepository
         return await _db.Messages.FirstOrDefaultAsync(x => x.Id == id);
     }
 
+    public async Task<List<Message>> GetPvHistoryAsync(Guid userA, Guid userB, DateTime? before = null, int take = 50)
+    {
+        var query = _db.Messages
+            .Where(m =>
+                (m.SenderId == userA && m.ReceiverId == userB) ||
+                (m.SenderId == userB && m.ReceiverId == userA));
+
+        if (before.HasValue)
+        {
+            query = query.Where(m => m.CreatedAt < before.Value);
+        }
+
+        return await query
+            .OrderByDescending(m => m.CreatedAt)
+            .Take(take)
+            .OrderBy(m => m.CreatedAt)
+            .ToListAsync();
+    }
+
 }

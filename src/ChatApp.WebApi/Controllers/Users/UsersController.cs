@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ChatApp.Application.Auth.Login;
+using ChatApp.Application.Users.GetUsers;
 
 namespace ChatApp.WebApi.Controllers.Users;
 
@@ -7,23 +8,33 @@ namespace ChatApp.WebApi.Controllers.Users;
 [Route("users")]
 public class UsersController : ControllerBase
 {
-    private readonly LoginOrRegisterHandler _handler;
+    private readonly LoginOrRegisterHandler _loginOrRegister;
+    private readonly GetUsersHandler _getUsers;
 
-    public UsersController(LoginOrRegisterHandler handler)
+    public UsersController(LoginOrRegisterHandler loginOrRegister, GetUsersHandler getUsers)
     {
-        _handler = handler;
+        _loginOrRegister = loginOrRegister;
+        _getUsers = getUsers;
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginOrRegisterCommand command)
+    public async Task<IActionResult> Login([FromBody] LoginOrRegisterCommand command)
     {
-        var result = await _handler.Handle(command);
+        var result = await _loginOrRegister.Handle(command);
 
         return Ok(new
         {
-            result.User.Id,
-            result.User.Name,
+            id = result.UserId,
+            name = result.Name,
+            phoneNumber = result.PhoneNumber,
             token = result.Token
         });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetUsers()
+    {
+        var users = await _getUsers.Handle();
+        return Ok(users);
     }
 }

@@ -18,6 +18,16 @@ public class UserRepository : IUserRepository
         return await _db.Users.FirstOrDefaultAsync(x => x.PhoneNumber == phone);
     }
 
+    public async Task<User?> GetByIdAsync(Guid id)
+    {
+        return await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<List<User>> GetAllAsync()
+    {
+        return await _db.Users.ToListAsync();
+    }
+
     public async Task AddAsync(User user)
     {
         await _db.Users.AddAsync(user);

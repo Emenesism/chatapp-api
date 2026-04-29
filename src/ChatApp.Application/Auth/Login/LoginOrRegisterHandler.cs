@@ -20,12 +20,21 @@ public class LoginOrRegisterHandler
 
     public async Task<LoginOrRegisterResult> Handle(LoginOrRegisterCommand command)
     {
+        if (command is null) throw new ArgumentNullException(nameof(command));
+
         var phone = PhoneValidator.NormalizePhone(command.Phone);
+        if (!PhoneValidator.IsValidIranianPhoneNumber(phone))
+            throw new InvalidOperationException("Invalid phone number");
 
         var user = await _users.GetByPhoneAsync(phone);
 
         if (user is null)
         {
+            if (string.IsNullOrWhiteSpace(command.Name))
+                throw new InvalidOperationException("Name is required for registration");
+            if (string.IsNullOrWhiteSpace(command.Password))
+                throw new InvalidOperationException("Password is required");
+
             var hash = _hasher.Hash(command.Password);
             user = new User(command.Name, phone, hash);
             await _users.AddAsync(user);
@@ -40,6 +49,11 @@ public class LoginOrRegisterHandler
         }
         var token = _jwt.GenerateToken(user.Id, user.PhoneNumber);
 
-        return new LoginOrRegisterResult(user, token);
+        return new LoginOrRegisterResult(
+            user.Id,
+            user.Name,
+            user.PhoneNumber,
+            token
+        );
     }
 }

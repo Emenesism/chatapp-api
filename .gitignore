@@ -42,4 +42,4 @@ appsettings.Local.json
 appsettings.*.local.json
 *.env
 .env
-.env.*
+.env

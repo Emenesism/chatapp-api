@@ -17,3 +17,18 @@ export interface Message {
   content: string;
   createdAt: string;
 }
+
+export interface Group {
+  id: string;
+  name: string;
+  username: string;
+}
+
+export interface GroupMessage {
+  id: string;
+  groupId: string;
+  groupUsername: string;
+  senderId: string;
+  content: string;
+  createdAt: string;
+}

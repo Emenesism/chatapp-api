@@ -2,8 +2,6 @@ using ChatApp.Application.Abstractions.Repositories;
 
 namespace ChatApp.Application.Messages.Groups;
 
-public record MyGroupDto(Guid Id, string Name, string Username);
-
 public class GetMyGroupsHandler
 {
     private readonly IGroupMembershipRepository _memberships;

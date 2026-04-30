@@ -7,6 +7,7 @@ using ChatApp.Application.Abstractions.Security;
 using ChatApp.Infrastructure.Security;
 using ChatApp.Application.Auth.Login;
 using ChatApp.Application.Messages.PV;
+using ChatApp.Application.Messages.Groups;
 using ChatApp.Application.Users.GetUsers;
 using ChatApp.WebApi.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -37,6 +38,9 @@ builder.Services.AddDbContext<ChatDBContext>(options =>
     ));
 
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IGroupChatRepository, GroupChatRepository>();
+builder.Services.AddScoped<IGroupMembershipRepository, GroupMembershipRepository>();
+builder.Services.AddScoped<IGroupMessageRepository, GroupMessageRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<LoginOrRegisterHandler>();
@@ -44,6 +48,11 @@ builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<GetUsersHandler>();
 builder.Services.AddScoped<SendPvMessageHandler>();
 builder.Services.AddScoped<GetPvHistoryHandler>();
+builder.Services.AddScoped<CreateGroupChatHandler>();
+builder.Services.AddScoped<JoinGroupByUsernameHandler>();
+builder.Services.AddScoped<SendGroupMessageHandler>();
+builder.Services.AddScoped<GetGroupHistoryHandler>();
+builder.Services.AddScoped<GetMyGroupsHandler>();
 
 builder.Services.AddControllers();
 builder.Services.AddSignalR();

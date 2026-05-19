@@ -5,6 +5,7 @@ import { renderUsers, fetchAllUsers, loadUsers, applyFilters, clearFilters, goTo
 import { renderTickets, loadUnassignedTickets, loadMyTickets, loadUserTickets, openTicketDetail, loadMessages, sendMessage, deleteMessage, assignTicketToMe, solveTicket, submitTicket, handleMessageFileSelected, clearSelectedMessageFile, downloadAttachment, deleteAttachment as deleteFileAttachment } from '../modules/tickets.js';
 import { fetchAllAdmins, submitCreateAdmin, openCreateAdminModal, syncSuperAdminCheckbox } from '../modules/admins.js';
 import { fetchAllSessions } from '../modules/sessions.js';
+import { startNotifications, stopNotifications } from '../modules/notifications.js';
 import { setAdminTab, setPageHeader, showSuperAdminNavigation } from '../components/layout.js';
 
 // ── Config ──
@@ -21,6 +22,7 @@ window.updateApiUrl = (val) => { API_BASE_URL = val; setApiBaseUrl(val); };
 window.updateToken = (val) => { AUTH_TOKEN = val; setToken(val); };
 
 function onLogout() {
+    stopNotifications();
     localStorage.clear();
     window.location.href = 'index.html';
 }
@@ -94,5 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedData && (savedData.isSuperAdmin || savedData.IsSuperAdmin)) {
         showSuperAdminNavigation(true);
     }
+    startNotifications('admin', onLogout);
     fetchAllUsers(showLoad, showErr, 'admin', onLogout, renderFn);
 });

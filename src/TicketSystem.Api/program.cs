@@ -8,6 +8,7 @@ using TicketSystem.Infrastructure.Persistance.Configuration;
 using TicketSystem.Infrastructure.Persistance.Repositories;
 using TicketSystem.Infrastructure.Security;
 using TicketSystem.Api.Middleware;
+using TicketSystem.Api.Hubs;
 using TicketSystem.Application.Services;
 using TicketSystem.Infrastructure.Services;
 
@@ -29,6 +30,8 @@ builder.Services.AddScoped<ITicketMessageRepository, TicketMessageRepo>();
 builder.Services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
 builder.Services.AddScoped<ISessionRepo, SessionRepo>();
 builder.Services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationSender, SignalRNotificationSender>();
 
 var storagePath = builder.Configuration.GetValue<string>("FileStorage:BasePath") ?? "uploads";
 if (!Path.IsPathRooted(storagePath))
@@ -74,7 +77,26 @@ builder.Services
 
             ClockSkew = TimeSpan.Zero
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hub/notifications"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
+
+
+builder.Services.AddSignalR();
 
 builder.Services.AddAuthorization();
 
@@ -94,6 +116,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hub/notifications");
 
 await app.ApplyAllMigrateAsync();
 

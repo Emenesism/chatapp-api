@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<TicketMessage> TicketMessages { get; set; }
     public DbSet<Session> Sessions { get; set; }
     public DbSet<Attachment> Attachments { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

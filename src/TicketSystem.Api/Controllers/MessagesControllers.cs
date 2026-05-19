@@ -6,6 +6,8 @@ using TicketSystem.Application.Dtos.Messages;
 using System.Security.Claims;
 using TicketSystem.Application.Dtos.Tickets;
 using TicketSystem.Application.Common.Exceptions;
+using TicketSystem.Application.Common.Interface;
+using TicketSystem.Application.Dtos.Notification;
 using TicketSystem.Application.Dtos.File;
 using TicketSystem.Application.Services;
 
@@ -13,7 +15,12 @@ using TicketSystem.Application.Services;
 [ApiController]
 [Route("message")]
 [Authorize]
-public class MessageController(ITicketMessageRepository messageRepository, IFileStorageService fileStorageService) : ControllerBase
+public class MessageController(
+    ITicketMessageRepository messageRepository,
+    ITicketRepository ticketRepository,
+    INotificationRepository notificationRepository,
+    INotificationSender notificationSender,
+    IFileStorageService fileStorageService) : ControllerBase
 {
     private const int MaxFileBytes = 10 * 1024 * 1024;
     private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png", ".pdf", ".docx"];
@@ -27,10 +34,35 @@ public class MessageController(ITicketMessageRepository messageRepository, IFile
         }
 
         var senderId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var ticket = await ticketRepository.GetTicketViaTicketId(dto.TicketId);
+
+        if (ticket is null)
+        {
+            throw new NotFoundException("Ticket not found");
+        }
 
         var message = new TicketMessage(dto.Content, senderId, dto.TicketId);
 
         await messageRepository.CreateTicketMessage(message);
+
+        var receiverId = senderId == ticket.UserId ? ticket.AdminId : ticket.UserId;
+        if (receiverId is not null && receiverId != senderId)
+        {
+            var notification = new Notification(
+                receiverId.Value.ToString(),
+                "New ticket message",
+                $"New message on ticket: {ticket.Title}");
+
+            await notificationRepository.AddAsync(notification);
+
+            await notificationSender.SendToUserAsync(receiverId.Value, new NotificationDto
+            {
+                Id = notification.Id,
+                Title = notification.Title,
+                Body = notification.Body,
+                CreatedAt = notification.CreatedAt
+            });
+        }
 
         return Ok(new MessageResponse
         {

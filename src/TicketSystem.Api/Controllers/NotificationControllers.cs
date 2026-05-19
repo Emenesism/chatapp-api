@@ -29,4 +29,17 @@ public class NotificationContrller(INotificationRepository notificationRepo) : C
 
         return Ok(result);
     }
+
+    [HttpPost("read-all")]
+    public async Task<ActionResult> MarkNotificationsAsRead()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+        await notificationRepo.MarkUserNotificationsAsReadAsync(userId);
+
+        return Ok(new
+        {
+            message = "Done"
+        });
+    }
 }

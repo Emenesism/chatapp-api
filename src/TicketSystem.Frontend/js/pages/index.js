@@ -5,6 +5,7 @@ import { renderUsers, fetchAllUsers, loadUsers, applyFilters, clearFilters, goTo
 import { renderTickets, loadUnassignedTickets, loadMyTickets, loadUserTickets, openTicketDetail, loadMessages, sendMessage, deleteMessage, assignTicketToMe, solveTicket, submitTicket, getCurrentTicketId, setCurrentTicketId, handleMessageFileSelected, clearSelectedMessageFile, downloadAttachment, deleteAttachment as deleteFileAttachment } from '../modules/tickets.js';
 import { fetchAllAdmins, submitCreateAdmin, openCreateAdminModal, syncSuperAdminCheckbox } from '../modules/admins.js';
 import { fetchAllSessions } from '../modules/sessions.js';
+import { startNotifications, stopNotifications } from '../modules/notifications.js';
 import { setAdminTab, showSuperAdminNavigation } from '../components/layout.js';
 
 // ── Config ──
@@ -55,6 +56,7 @@ function showProfile(data, role) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('profileScreen').style.display = 'block';
     document.getElementById('profileScreen').classList.add('animate-fade-in');
+    startNotifications(role, onLogout);
     loadUserTickets(role, onLogout, (tickets) => renderTickets('userTicketList', tickets, false, (t, u) => window.openTicketDetail(t, u)));
 }
 
@@ -66,6 +68,7 @@ function showAdminDashboard(data) {
     document.getElementById('loginWrapper').style.display = 'none';
     document.getElementById('adminLayout').style.display = 'flex';
     document.getElementById('adminLayout').classList.add('animate-fade-in');
+    startNotifications('admin', onLogout);
     fetchAllUsers(
         (l) => showLoading('loadingState', l),
         (err) => showError('adminErrorAlert', 'adminErrorText', err),
@@ -76,6 +79,7 @@ function showAdminDashboard(data) {
 }
 
 function onLogout() {
+    stopNotifications();
     document.getElementById('loginWrapper').style.display = 'flex';
     document.getElementById('loginScreen').style.display = 'block';
     document.getElementById('profileScreen').style.display = 'none';

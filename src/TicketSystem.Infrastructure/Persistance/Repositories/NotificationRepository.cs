@@ -27,4 +27,11 @@ public class NotificationRepository(AppDbContext db) : INotificationRepository
         .OrderByDescending(s => s.CreatedAt)
         .ToListAsync();
     }
+
+    public async Task MarkUserNotificationsAsReadAsync(string userId)
+    {
+        await _db.Notifications
+            .Where(s => s.UserId == userId && s.IsRead == false)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(s => s.IsRead, true));
+    }
 }

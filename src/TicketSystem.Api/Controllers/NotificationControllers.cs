@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Api.Contracts.Responses;
 using TicketSystem.Application.Abstractions.Repositories;
-using TicketSystem.Application.Dtos.Notification;
 
 namespace TicketSystem.Api.Controllers;
 

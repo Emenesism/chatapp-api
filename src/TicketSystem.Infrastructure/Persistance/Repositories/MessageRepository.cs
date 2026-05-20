@@ -43,8 +43,8 @@ public class TicketMessageRepo(AppDbContext db) : ITicketMessageRepository
     public async Task<Attachment?> GetAttachmentById(Guid attachmentId)
     {
         return await _db.Attachments
-        .Include(s => s.TicketMessage)
-        .FirstOrDefaultAsync(s => s.Id == attachmentId);
+            .Include(s => s.TicketMessage)
+            .FirstOrDefaultAsync(s => s.Id == attachmentId);
     }
 
     public async Task DeleteAttachment(Attachment attachment)

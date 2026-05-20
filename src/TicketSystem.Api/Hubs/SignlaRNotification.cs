@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using TicketSystem.Application.Common.Interface;
-using TicketSystem.Application.Dtos.Notification;
+using TicketSystem.Application.Common.Models;
 
 namespace TicketSystem.Api.Hubs;
 
@@ -8,7 +8,7 @@ public class SignalRNotificationSender(IHubContext<NotificationHub> hubContext) 
 {
     private readonly IHubContext<NotificationHub> _hubContext = hubContext;
 
-    public async Task SendToUserAsync(Guid userId, NotificationDto notification)
+    public async Task SendToUserAsync(Guid userId, NotificationMessage notification)
     {
         await _hubContext.Clients.User(userId.ToString())
             .SendAsync("ReceiveNotification", notification);

@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Api.Contracts.Common;
+using TicketSystem.Api.Contracts.Requests;
+using TicketSystem.Api.Contracts.Responses;
 using TicketSystem.Application.Abstractions.Repositories;
 using TicketSystem.Application.Common.Exceptions;
-using TicketSystem.Application.Dtos.Common;
-using TicketSystem.Application.Dtos.Users;
 
 namespace TicketSystem.Api.Controllers;
 

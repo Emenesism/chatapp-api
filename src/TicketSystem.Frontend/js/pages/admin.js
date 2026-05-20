@@ -2,7 +2,7 @@ import { getApiBaseUrl, setApiBaseUrl, getToken, setToken, setUserId, setRole, s
 import { apiRequest, logout, logoutAll } from '../core/api.js';
 import { openModal, closeModal, showError, showLoading, formatDate, formatDateTime, getInitial, getValue } from '../core/utils.js';
 import { renderUsers, fetchAllUsers, loadUsers, applyFilters, clearFilters, goToPage, changeLimit, getCurrentPage, setCurrentPage, getCurrentLimit, setCurrentLimit } from '../modules/users.js';
-import { renderTickets, loadUnassignedTickets, loadMyTickets, loadUserTickets, openTicketDetail, loadMessages, sendMessage, deleteMessage, assignTicketToMe, solveTicket, submitTicket, handleMessageFileSelected, clearSelectedMessageFile, downloadAttachment, deleteAttachment as deleteFileAttachment } from '../modules/tickets.js';
+import { renderTickets, loadUnassignedTickets, loadMyTickets, loadUserTickets, openTicketDetail, loadMessages, reloadOpenChatMessages, sendMessage, deleteMessage, assignTicketToMe, solveTicket, submitTicket, handleMessageFileSelected, clearSelectedMessageFile, downloadAttachment, deleteAttachment as deleteFileAttachment } from '../modules/tickets.js';
 import { fetchAllAdmins, submitCreateAdmin, openCreateAdminModal, syncSuperAdminCheckbox } from '../modules/admins.js';
 import { fetchAllSessions } from '../modules/sessions.js';
 import { startNotifications, stopNotifications } from '../modules/notifications.js';
@@ -84,6 +84,10 @@ window.downloadAttachment = (id, filename) => downloadAttachment(id, filename, '
 window.deleteAttachment = (id) => deleteFileAttachment(id, 'admin', onLogout, (r, o) => loadMessages(r, o));
 window.assignTicketToMe = () => assignTicketToMe('admin', onLogout, loadUnassigned, closeModal);
 window.solveTicket = () => solveTicket('admin', onLogout, loadMy, closeModal);
+
+window.addEventListener('ticket-system:notification-received', () => {
+    reloadOpenChatMessages('admin', onLogout);
+});
 
 // ── Wire up admin functions ──
 window.openCreateAdminModal = () => openCreateAdminModal(openModal);

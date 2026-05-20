@@ -97,6 +97,7 @@ function addNotification(notification, showPopup = false) {
     notifications = [normalized, ...notifications.filter(item => item.id !== normalized.id)];
     renderNotifications();
     if (showPopup) showToast(normalized);
+    window.dispatchEvent(new CustomEvent('ticket-system:notification-received', { detail: normalized }));
 }
 
 function ensureWidget() {

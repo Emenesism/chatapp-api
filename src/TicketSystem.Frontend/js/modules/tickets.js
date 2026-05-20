@@ -156,10 +156,12 @@ export async function openTicketDetail(ticket, isUnassigned, role, userId, onLog
     openModal('ticketDetailModal');
 }
 
-export async function loadMessages(role, onLogout) {
+export async function loadMessages(role, onLogout, options = {}) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
-    chatMessages.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Loading messages...</p>';
+    if (options.showLoading !== false) {
+        chatMessages.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Loading messages...</p>';
+    }
     try {
         const response = await apiRequest('/message/all', {
             method: 'POST',
@@ -172,6 +174,13 @@ export async function loadMessages(role, onLogout) {
     } catch (err) {
         chatMessages.innerHTML = 'Error loading messages.';
     }
+}
+
+export async function reloadOpenChatMessages(role, onLogout) {
+    const modal = document.getElementById('ticketDetailModal');
+    if (!currentTicketId || !modal || modal.style.display === 'none') return;
+
+    await loadMessages(role, onLogout, { showLoading: false });
 }
 
 function renderMessages(messages, role) {

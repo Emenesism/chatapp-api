@@ -1,4 +1,3 @@
-using TicketSystem.Application.Dtos.Dashboard;
 using TicketSystem.Domain.Entities;
 
 namespace TicketSystem.Application.Abstractions.Repositories;
@@ -19,5 +18,5 @@ public interface ISessionRepo
     Task RevokeAllUserSessions(Guid userId);
     Task RevokeAllAdminSessions(Guid adminId);
     Task<Session?> ReuseDetector(string tokenHash);
-    Task<List<AllSessionResponse>> GetActiveSessionForDashboard();
+    Task<List<Session>> GetActiveSessionForDashboard();
 }

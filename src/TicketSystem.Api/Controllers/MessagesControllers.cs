@@ -2,13 +2,12 @@ using TicketSystem.Domain.Entities;
 using TicketSystem.Application.Abstractions.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using TicketSystem.Application.Dtos.Messages;
+using TicketSystem.Api.Contracts.Requests;
+using TicketSystem.Api.Contracts.Responses;
 using System.Security.Claims;
-using TicketSystem.Application.Dtos.Tickets;
 using TicketSystem.Application.Common.Exceptions;
 using TicketSystem.Application.Common.Interface;
-using TicketSystem.Application.Dtos.Notification;
-using TicketSystem.Application.Dtos.File;
+using TicketSystem.Application.Common.Models;
 using TicketSystem.Application.Services;
 
 
@@ -55,7 +54,7 @@ public class MessageController(
 
             await notificationRepository.AddAsync(notification);
 
-            await notificationSender.SendToUserAsync(receiverId.Value, new NotificationDto
+            await notificationSender.SendToUserAsync(receiverId.Value, new NotificationMessage
             {
                 Id = notification.Id,
                 Title = notification.Title,
@@ -97,20 +96,13 @@ public class MessageController(
             throw new ForbiddenException("You can only attach files to your own messages");
         }
 
-        var dto = new UploadFileDto
-        {
-            FileName = file.FileName,
-            ContentType = file.ContentType
-        };
+        ValidateUpload(file);
 
-        var validator = new FileValidator(MaxFileBytes, AllowedExtensions);
-        validator.Validate(dto, file.Length);
-
-        var extension = Path.GetExtension(dto.FileName).ToLowerInvariant();
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
         using var stream = file.OpenReadStream();
-        var storageName = await fileStorageService.SaveAsync(stream, dto.ContentType, extension);
+        var storageName = await fileStorageService.SaveAsync(stream, file.ContentType, extension);
 
-        var attachment = new Attachment(dto.FileName, file.Length, dto.ContentType)
+        var attachment = new Attachment(file.FileName, file.Length, file.ContentType)
         {
             TicketMessageId = messageId,
             StorageName = storageName
@@ -240,5 +232,24 @@ public class MessageController(
             message = "Done"
         });
 
+    }
+
+    private static void ValidateUpload(IFormFile file)
+    {
+        if (string.IsNullOrWhiteSpace(file.FileName))
+            throw new ArgumentException("File name is required.");
+
+        if (string.IsNullOrWhiteSpace(file.ContentType))
+            throw new ArgumentException("Content type is required.");
+
+        if (file.Length <= 0)
+            throw new ArgumentException("File content is required.");
+
+        if (file.Length > MaxFileBytes)
+            throw new ArgumentException($"File exceeds max size of {MaxFileBytes / 1024 / 1024} MB.");
+
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+            throw new ArgumentException($"File type {extension} is not allowed.");
     }
 }

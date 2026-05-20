@@ -1,8 +1,8 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Api.Contracts.Responses;
 using TicketSystem.Application.Abstractions.Repositories;
-using TicketSystem.Application.Dtos.Dashboard;
 
 namespace TicketSystem.Api.Controllers;
 
@@ -17,6 +17,19 @@ public class DashboardController(ISessionRepo sessionRepo) : ControllerBase
     {
         var session = await sessionRepo.GetActiveSessionForDashboard();
 
-        return Ok(session);
+        var result = session.Select(s => new AllSessionResponse
+        {
+            Id = s.Id,
+            UserAgent = s.UserAgent,
+            IpAddress = s.IpAddress,
+            CreatedAt = s.CreatedAt,
+            LastTimeUsed = s.LastUsageAt,
+            ExpiresAt = s.ExpiresAt,
+            AdminId = s.AdminId,
+            UserId = s.UserId,
+            IsAdmin = s.IsAdmin
+        }).ToList();
+
+        return Ok(result);
     }
 }
